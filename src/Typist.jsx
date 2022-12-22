@@ -27,7 +27,7 @@ export default class Typist extends Component {
     className: '',
     avgTypingDelay: 70,
     stdTypingDelay: 25,
-    startDelay: 0,
+    startDelay: 1,
     cursor: {},
     onCharacterTyped: () => {},
     onLineTyped: () => {},
@@ -56,7 +56,7 @@ export default class Typist extends Component {
     const { children, startDelay } = this.props;
     if (children) {
       if (startDelay > 0 && typeof window !== 'undefined') {
-        setTimeout(this.typeAllLines.bind(this), startDelay);
+        this.timeout = setTimeout(this.typeAllLines.bind(this), startDelay);
       } else {
         this.typeAllLines();
       }
@@ -81,6 +81,11 @@ export default class Typist extends Component {
 
   componentWillUnmount() {
     this.mounted = false;
+
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
   }
 
   onTypingDone = () => {
@@ -88,6 +93,8 @@ export default class Typist extends Component {
     this.setState({ isDone: true });
     this.props.onTypingDone();
   }
+
+  timeout = null
 
   delayGenerator = (line, lineIdx, character, charIdx) => {
     const mean = this.props.avgTypingDelay;
